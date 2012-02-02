@@ -1,15 +1,52 @@
-WIDTH = 10
-HEIGHT = 10
-
+import os
 import random
+import time
+import sys
 
-def main():
+from colorama import init, Back
+init()
+
+WIDTH = 170
+HEIGHT = 42 # Not really
+
+
+
+def printer(board):
     """
-    GO
+    Print a board
+
+    Arguments:
+    - `board`:
     """
-    board = [[random.choice('x ') for x in xrange(HEIGHT)] for x in xrange(WIDTH)]
+    os.system("clear")
+    print '  ' + "-" * (WIDTH + 1)
     for row in board:
-        print row
+        sys.stdout.write("  |")
+        for cell in row:
+            if cell:
+                sys.stdout.write(Back.RED + "*" + Back.RESET)
+            else:
+                sys.stdout.write(" ")
+        sys.stdout.write("|\n")
+    print '  ' + "-" * (WIDTH + 1)
+
+def create_board():
+    """
+    Create a random board
+    """
+    board = [[False for x in xrange(WIDTH)] for y in xrange(HEIGHT)]
+    for row in board:
+        for i, cell  in enumerate(row):
+            if i % random.randint(1, 10) == 0:
+                row[i] = True
+    return board
+
+
+def life():
+    """
+    The game of life
+    """
+    printer(create_board())
 
 def neighbours(x, y):
     for dx in range(-1, 2):
@@ -25,8 +62,10 @@ def neighbours(x, y):
 
 def is_alive(x, y, board):
     live_n = 0
+    height = len(board)
+    width = len(board[0])
     for nx, ny in neighbours(x, y):
-        live_n += 1 if board[y % HEIGHT][x % WIDTH] else 0
+        live_n += 1 if board[ny % height][nx % width] else 0
     if live_n < 2:
         return False
     elif live_n == 3:
@@ -40,12 +79,24 @@ def is_alive(x, y, board):
 
 def tick(board):
     new_board = []
-    for y in range(HEIGHT):
+    height = len(board)
+    width = len(board[0])
+    for y in range(height):
         row = []
-        for x in range(WIDTH):
+        for x in range(width):
             row.append(is_alive(x, y, board))
         new_board.append(row)
     return new_board
+
+def main():
+    """
+    GO
+    """
+    board = create_board()
+    while True:
+        printer(board)
+        time.sleep(0.1)
+        board = tick(board)
 
 if __name__ == '__main__':
     main()
